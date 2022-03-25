@@ -38,7 +38,7 @@ def clean_text(text, uvij=True):
 def corpus_preproces(text):
     # Als de text opgeschoond is 
     words = word_tokenize(text)
-    que_words = load_data("data\que_woorden.json")
+    que_words = load_data("data/que_woorden.json")
     words_split = []
     for word in words:
         if (word.endswith('que')) & (word not in que_words):
