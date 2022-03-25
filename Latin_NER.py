@@ -5,7 +5,7 @@ import re
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
 from spacy import displacy
-
+nltk.download('punkt')
 # Hier wordt het model gecached. Dit houdt in dat het model een keer geladen wordt als de gebruiker de app opstart, maar daarna hoeft het model niet weer opnieuw geladen te worden als de gebruiker het script laat lopen (na input te leveren bijvoorbeeld)
 @st.cache(allow_output_mutation = True)
 def load_model(model_name):
