@@ -22,14 +22,15 @@ def load_data(file, json_file=True):
             data = f.read()
     return (data)
 
-def clean_text(text):
+def clean_text(text, uvij=True):
     # Corpus is nog wat rommelig, deze functie schoont die op zodat die goed getokenised kan worden
     cleaned = re.sub(r"[\(\[].*?[\)\]]", "", text)
     cleaned = cleaned.replace('\n\n','').replace('\n','').replace(' .','.').replace('.','. ')
     cleaned = cleaned.replace('   ',' ').replace('  ',' ').replace('"','')
     #cleaned = replace_jv(cleaned).strip()
-    cleaned = cleaned.replace('v','u').replace('j','i').replace('V','U').replace('J','I').strip()
-    
+    if uvij:
+        cleaned = cleaned.replace('v','u').replace('j','i').replace('V','U').replace('J','I').strip()
+        
     return cleaned
 
 def corpus_preproces(text):
@@ -54,18 +55,18 @@ def corpus_preproces(text):
     # We willen het model trainen op zin niveau. Hiervoer moet de text op zinnen gesplitst worden, maar dat gaat soms mis als er afkortingen worden gebruikt.
     # Dit stukje code kan omgaan met afkortingen die in de lijst staan
     punkt_param = PunktParameters()
-    abbreviation = ['a', 'd', 'u','kal', 'apr', 'id', 'april', 'cn', 'c','tib','f','m','p','sex']
+    abbreviation = ['a', 'd', 'u','kal', 'apr', 'id', 'april', 'cn', 'c','tib','f','m','p','sex','ti']
     punkt_param.abbrev_types = set(abbreviation)
     tokenizer = PunktSentenceTokenizer(punkt_param)
     corpus_sents = tokenizer.tokenize(corpus_preprocessed)
     #
-    corpus_sents = ' \n\n'.join(corpus_sents)
+    corpus_sents = ' \n'.join(corpus_sents)
     
     return corpus_sents
 
 nlp = load_model("models/model-best")
 
-st.title('Latin NER')
+st.title('Latijnse eigennamen herkenning')
 
 # Normaal gesproken runt streamlit de hele code bij elke klik van de gebruiker.
 # Een form maakt een kleine omgeving waar de gebruiker aanpassingen kan doen (input kan leveren) zonder dat de hele script loopt, tot dat op de knop gedrukt wordt. Dit is essentieel als de script lang duurt
@@ -80,9 +81,16 @@ form1.form_submit_button('Analyseer!')
 #sentence, sent_preproc, hits = analyse_sent(text, nlp, ent_types)
 #st.write(sent_preproc)
 #st.write(hits)
-
-#spacy_streamlit.visualize(nlp, text)
-sentence_clean = clean_text(text)
+sentence_clean = clean_text(text, uvij=False)
 corpus_proc = corpus_preproces(sentence_clean)
 ent_html = displacy.render(nlp(corpus_proc), style="ent", jupyter=False)
-st.markdown(ent_html, unsafe_allow_html=True)
+
+col1, col2 = st.columns([1.5,3])
+
+with col1:
+    col1.subheader('Input tekst')
+    sentence_clean = clean_text(text, uvij=False)
+    col1.write(sentence_clean)
+with col2:
+    col2.subheader('NER')
+    col2.markdown(ent_html, unsafe_allow_html=True)
